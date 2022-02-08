@@ -44,6 +44,11 @@ workflow validate {
 
     main:
 
+        // Make sure that an output folder was defined
+        if ( params.output_folder == false ) {
+            throw new Exception("""Must specify parameter: output_folder""")
+        }
+
         // Make sure that a comparison column was defined
         if ( params.comp_col == false ) {
             throw new Exception("""Must specify parameter: comp_col""")
