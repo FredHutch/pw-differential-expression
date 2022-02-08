@@ -164,8 +164,8 @@ def validate_manifest(manifest="manifest.csv"):
 
         # The value of `comp_ref` must be present in the `comp_col` column
         comp_ref_count = (df[comp_col] == comp_ref).sum()
-        msg = f"Found value ({comp_ref}) in column ({comp_col}) {comp_ref_count} time(s)"
-        assert comp_ref_count > 1, msg
+        msg = f"Found value ({comp_ref}) in column ({comp_col}) {comp_ref_count} times"
+        assert comp_ref_count > 0, msg
 
         # Iterate over each of the unique values in the `comp_col` column
         for comp_val, comp_val_count in df[comp_col].value_counts().items():
@@ -175,10 +175,6 @@ def validate_manifest(manifest="manifest.csv"):
                 continue
 
             logger.info(f"Formatting a table to compare {comp_val} vs. {comp_ref}")
-
-            # We must have more than one instance of this value
-            msg = f"Cannot perform categorical comparison with only 1 value of {comp_val}"
-            assert comp_val_count > 1, msg
 
             # Make a DataFrame which only contains those rows where the
             # value in `comp_col` is either this value, or the `comp_ref` value
