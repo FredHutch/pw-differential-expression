@@ -149,7 +149,7 @@ def validate_manifest(manifest="manifest.csv"):
         assert comp_ref is None, msg
 
         # Write out a table which indicates the comparison column in the file name
-        fp = f"{comp_col}.manifest.csv"
+        fp = f"{comp_col}.continuous.manifest.csv"
         print(f"Writing out file to {fp}")
         df.to_csv(fp)
 
@@ -201,7 +201,7 @@ def validate_manifest(manifest="manifest.csv"):
             )
 
             # Write out this table as a CSV
-            fp = f"{comp_val}.manifest.csv"
+            fp = f"{comp_val}.categorical.manifest.csv"
             logger.info(f"Writing out file to {fp}")
             comp_df.to_csv(fp)
 
