@@ -32,8 +32,8 @@ def get_sep(fp):
 
 
 def validate_counts(
-    manifest_csv="manifest.csv",
-    # The path to the counts table will be filled in by Nextflow prior to execution
+    # The path to the manifest and counts table will be filled in by Nextflow prior to execution
+    manifest_csv="${manifest_table}",
     counts_input="${counts_table}",
     counts_output="counts.csv"
 ):

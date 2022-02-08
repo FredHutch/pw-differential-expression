@@ -26,12 +26,12 @@ process counts {
     
     input:
     // Input file will be placed in the working directory with this name
-    path "manifest.csv"
+    path manifest_table
     path counts_table
 
     output:
     // If validation was successful, the output will be written with this path
-    path "counts.csv"
+    tuple path("${manifest_table.name}"), path("counts.csv")
 
     script:
     // Run the script in templates/validate_counts.py
