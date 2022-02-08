@@ -144,13 +144,18 @@ def validate_manifest(manifest="manifest.csv"):
 
         logger.info("Values appear to all be numeric")
 
+        # Using a value with spaces or periods will introduce errors later on when R tries to read it in
+        new_comp_col = comp_col.replace(" ", "_").replace(".", "_")
+        df = df.rename(columns=dict({comp_col: new_comp_col}))
+        comp_col = new_comp_col
+
         # There should not be a `comp_ref` value
         msg = f"Column ({comp_col} is numeric - `comp_ref` not allowed"
         assert comp_ref is None, msg
 
         # Write out a table which indicates the comparison column in the file name
         fp = f"{comp_col}.continuous.manifest.csv"
-        print(f"Writing out file to {fp}")
+        logger.info(f"Writing out file to {fp}")
         df.to_csv(fp)
 
     except:
@@ -168,11 +173,15 @@ def validate_manifest(manifest="manifest.csv"):
         assert comp_ref_count > 0, msg
 
         # Iterate over each of the unique values in the `comp_col` column
-        for comp_val, comp_val_count in df[comp_col].value_counts().items():
+        for comp_val in df[comp_col].unique():
 
             # Skip the comparison reference value
             if comp_val == comp_ref:
                 continue
+
+            # Using a value with spaces or periods will introduce errors later on when R tries to read it in
+            comp_val = comp_val.replace(" ", "_")
+            comp_val = comp_val.replace(".", "_")
 
             logger.info(f"Formatting a table to compare {comp_val} vs. {comp_ref}")
 
