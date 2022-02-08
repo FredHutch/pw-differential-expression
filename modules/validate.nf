@@ -1,20 +1,21 @@
 // Validate the gene count tables
-process validate_tables {
+process validate_counts {
     container "${params.container__pandas}"
     label "io_limited"
     
     input:
     // Input file will be placed in the working directory with this name
-    tuple path("manifest.csv"), path("${gene_count_filename}.raw"), val(gene_count_filename)
+    path "manifest.csv"
+    path "counts.raw"
 
     output:
     // If validation was successful, the output will be written with this path
-    path "${gene_count_filename}"
+    path "counts.csv"
 
     script:
-    // Run the script in bin/validate_tables.py
+    // Run the script in bin/validate_counts.py
     """
-    validate_tables.py
+    validate_counts.py
     """
 
 }
@@ -24,30 +25,15 @@ workflow validate {
 
     main:
 
-        // Set up a channel which will be used to place input files
-        Channel
-            .empty()
-            .set { gene_counts }
+        log.info"""${params.manifest}"""
 
-        // If the parameter `salmon_merged_counts` was provided
-        if ( params.salmon_merged_counts ){
-
-            // Add that file to the channel for validation
-            gene_counts.bind([
-                file(params.manifest),
-                file(params.salmon_merged_counts),
-                "salmon.merged.gene_counts.tsv"
-            ])
-
-        }
-
-        // Validate any of the files found
-        validate_tables(
-            Channel
-                .fromPath(params.salmon_merged_counts)
+        // Validate the counts file
+        validate_counts(
+            Channel.fromPath(params.manifest),
+            Channel.fromPath(params.counts)
         )
 
     emit:
-    validate_tables.out        
+    validate_counts.out        
 
 }
