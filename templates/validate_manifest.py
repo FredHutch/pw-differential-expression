@@ -69,7 +69,7 @@ def validate_manifest(manifest="manifest.csv"):
 
     # Set up logging
     logFormatter = logging.Formatter(
-        '%(asctime)s %(levelname)-8s [validate_counts] %(message)s'
+        '%(asctime)s %(levelname)-8s [validate_manifest] %(message)s'
     )
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -201,10 +201,10 @@ def validate_manifest(manifest="manifest.csv"):
             ).assign(
                 **{
                     comp_val: comp_df[comp_col].apply(
-                        dict(
-                            comp_ref=0,
-                            comp_val=1
-                        ).get
+                        {
+                            comp_ref: 0,
+                            comp_val: 1
+                        }.get
                     )
                 }
             )

@@ -55,6 +55,7 @@ def validate_counts(
         assert os.path.exists(fp), f"File not found: {fp}"
 
     # Read in the manifest, using the first column as the index
+    logger.info(f"Reading in {manifest_csv}")
     manifest = pd.read_csv(manifest_csv, index_col=0, sep=get_sep(manifest_csv))
 
     # Log the specimens defined in the manifest
@@ -63,6 +64,7 @@ def validate_counts(
         logger.info(n)
 
     # Read in the counts, using the first column as the index
+    logger.info(f"Reading in {counts_input}")
     counts = pd.read_csv(counts_input, index_col=0, sep=get_sep(counts_input))
 
     # Log the columns in the counts table
@@ -91,7 +93,13 @@ def validate_counts(
     )
 
     # Write out the counts file to a CSV
+    logger.info(f"Writing out {counts_output}")
     counts.to_csv(counts_output)
+
+    # Write out the manifest file to a CSV
+    manifest_output = "${manifest_table.name}"
+    logger.info(f"Writing out {manifest_output}")
+    manifest.to_csv(manifest_output)
 
 
 if __name__ == "__main__":

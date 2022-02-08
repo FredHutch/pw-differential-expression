@@ -26,8 +26,8 @@ process counts {
     
     input:
     // Input file will be placed in the working directory with this name
-    path manifest_table
     path counts_table
+    each manifest_table
 
     output:
     // If validation was successful, the output will be written with this path
@@ -68,8 +68,8 @@ workflow validate {
 
         // Validate the counts file
         counts(
-            manifest.out,
-            Channel.fromPath(params.counts)
+            Channel.fromPath(params.counts),
+            manifest.out.flatten()
         )
 
     emit:

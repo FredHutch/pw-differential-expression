@@ -8,5 +8,17 @@ include { collect } from './modules/collect'
 
 // Main workflow
 workflow {
-    validate | test | collect
+
+    // Validate the contents of --counts and align the
+    // column order with rows in --manifest
+    validate()
+
+    // Run the indicated test library on the counts table
+    test(
+        validate.out
+    )
+
+    collect(
+        test.out
+    )
 }
