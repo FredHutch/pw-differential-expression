@@ -5,11 +5,36 @@ import os
 import pandas as pd
 import logging
 
+
+def get_sep(fp):
+    """Return the separator value which should be used, based on the file extension."""
+    
+    # Remove the '.gz', if any
+    if fp.endswith('.gz'):
+        fp = fp[:-3]
+
+    # If the extension is .csv
+    if fp.endswith('.csv'):
+
+        # The separator is ','
+        return ','
+
+    # If the extension is .tsv
+    elif fp.endswith('.tsv'):
+
+        # The separator is '\t'
+        return '\t'
+
+    else:
+
+        msg = f"Did not recognize file extension: {fp.split('.')[-1]}"
+        raise Exception(msg)
+
+
 def validate_counts(
     manifest_csv="manifest.csv",
-    manifest_sep=",",
-    counts_input="counts.raw",
-    counts_sep="\t",
+    # The path to the counts table will be filled in by Nextflow prior to execution
+    counts_input="${counts_table}",
     counts_output="counts.csv"
 ):
 
@@ -30,7 +55,7 @@ def validate_counts(
         assert os.path.exists(fp), f"File not found: {fp}"
 
     # Read in the manifest, using the first column as the index
-    manifest = pd.read_csv(manifest_csv, index_col=0, sep=manifest_sep)
+    manifest = pd.read_csv(manifest_csv, index_col=0, sep=get_sep(manifest_csv))
 
     # Log the specimens defined in the manifest
     logger.info("Specimens defined in the manifest:")
@@ -38,7 +63,7 @@ def validate_counts(
         logger.info(n)
 
     # Read in the counts, using the first column as the index
-    counts = pd.read_csv(counts_input, index_col=0, sep=counts_sep)
+    counts = pd.read_csv(counts_input, index_col=0, sep=get_sep(counts_input))
 
     # Log the columns in the counts table
     logger.info("Columns in counts table:")

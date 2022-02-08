@@ -42,6 +42,7 @@ of the parameters:
  - `comp_col`: Column used for comparison
  - `comp_ref`: For categorical comparisons, the label used for the reference group
  - `group_cols`: Comma separated list indicating any columns which contain batch information which will be normalized before testing the comparison group
+ - `filter`: Optional expression used to filter specimens used for the comparison
 
  Note: Interaction terms are not currently supported.
 
@@ -117,3 +118,25 @@ also controlling for batch effects, the user would specify:
  - `comp_ref`: `wt`
  - `group_cols`: `age,group`
 
+#### Filtering Example 1:
+
+To compare the `wt` vs. `nod2` samples using _only_ the specimens from
+batch A, the user would specify:
+
+ - `comp_col`: `genotype`
+ - `comp_ref`: `wt`
+ - `filter`: `batch == 'A'`
+
+Note the use of single quotes used for string matching in `filter`.
+
+#### Filtering Example 2:
+
+To compare the `wt` vs. `nod2` samples using _only_ the specimens where
+`age` is greater than or equal to `10`, the user would specify:
+
+ - `comp_col`: `genotype`
+ - `comp_ref`: `wt`
+ - `filter`: `age >= 10`
+
+Any boolean expression can be used in the `filter` parameter, but
+set membership (e.g. `age in [10, 12, 17]` is _not_ supported).
