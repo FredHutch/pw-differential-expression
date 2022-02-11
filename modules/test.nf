@@ -1,6 +1,6 @@
 // Filter genes with the filterbyExpr package
 process filter {
-    container "${params.container__edger}"
+    container "${params.container__edgeR}"
     label "io_limited"
     
     input:
@@ -34,6 +34,26 @@ process deseq2 {
 
 }
 
+// Run the edgeR algorithm
+process edgeR {
+    container "${params.container__edgeR}"
+    label "mem_medium"
+    publishDir "${params.output_folder}", mode: "copy", overwrite: true
+    
+    input:
+    // Input file will be placed in the working directory with this name
+    tuple path(manifest), path(counts)
+
+    output:
+    // If validation was successful, the output will be written with this path
+    path "*.edgeR.csv"
+
+    script:
+    // Run the script in templates/run_edgeR.R
+    template "run_edgeR.R"
+
+}
+
 workflow test {
     take:
     // Table of gene counts paired with the manifest, 
@@ -52,10 +72,10 @@ workflow test {
         deseq2(filter.out)
         csv = deseq2.out
 
-    } else if ( params.algorithm == "edger" ){
+    } else if ( params.algorithm == "edgeR" ){
         
-        edger(filter.out)
-        csv = edger.out 
+        edgeR(filter.out)
+        csv = edgeR.out 
 
     } else if ( params.algorithm == "limma_voom" ){
         
@@ -66,7 +86,7 @@ workflow test {
         throw new Exception("""
     ERROR:
     Algorithm not recognized: ${params.algorithm}
-    Supported options: deseq2, edger, limma_voom
+    Supported options: deseq2, edgeR, limma_voom
         """)
     }
 
