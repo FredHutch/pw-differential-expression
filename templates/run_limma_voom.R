@@ -1,0 +1,76 @@
+#!/usr/bin/env Rscript
+
+# Ref: https://www.bioconductor.org/packages/devel/bioc/vignettes/limma/inst/doc/usersguide.pdf
+
+library(limma)
+library(edgeR)
+
+# Get the names of the files to process
+manifest_fp = "${manifest}"
+counts_fp = "${counts}"
+
+# Read in the manifest and counts table
+manifest = read.table(manifest_fp, header=TRUE, sep=",", row.names=1)
+counts = read.table(counts_fp, header=TRUE, sep=",", row.names=1)
+cnames = names(counts)
+
+# Make sure that all counts are integers
+counts = data.frame(
+    lapply(counts,as.integer),
+    row.names = rownames(counts)
+)
+names(counts) = cnames
+
+# Split up the manifest filename, which has the format
+# "{comp_column}.[continuous|categorical].manifest.csv"
+manifest_fields = strsplit(manifest_fp, split = "[.]")[[1]]
+stopifnot(length(manifest_fields) == 4)
+
+# The first field in the manifest filename is the column indicating the
+# metadata field to use in the formula
+test_col = manifest_fields[1]
+
+# Any additional grouping columns will be provided with the Nextflow parameter `group_cols`
+group_cols = strsplit("${params.group_cols}", split = ",")[[1]]
+
+# If >=1 grouping columns were provided
+if ( group_cols[1] != "false" ){
+
+    # Make formula which uses the test column in the last position
+    model_formula = formula(paste("~", paste(group_cols, collapse = " + "), "+", test_col))
+
+} else {
+    # Otherwise, the formula will just have the test column
+    model_formula = formula(paste("~", test_col))
+}
+
+# Make a design object
+design = model.matrix(model_formula, data=manifest)
+
+# # Combine the counts and the metadata
+# dge = DGEList(counts=counts)
+
+# # Apply scale normalization
+# dge <- calcNormFactors(dge)
+
+# Apply the voom transformation to the counts
+v <- voom(counts, design, plot=FALSE)
+
+# Fit the model
+fit <- lmFit(v, design)
+fit <- eBayes(fit)
+
+# Make a table with results
+res_df = topTable(
+    fit,
+    coef=test_col,
+    number=nrow(counts),
+    adjust.method="BH"
+)
+
+# Write out the results
+write.csv(
+    res_df, 
+    file=paste(test_col, "limma_voom.csv", sep="."),
+    quote=FALSE
+)

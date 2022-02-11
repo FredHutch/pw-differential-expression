@@ -54,6 +54,26 @@ process edgeR {
 
 }
 
+// Run the limma voom algorithm
+process limma_voom {
+    container "${params.container__edgeR}"
+    label "mem_medium"
+    publishDir "${params.output_folder}", mode: "copy", overwrite: true
+    
+    input:
+    // Input file will be placed in the working directory with this name
+    tuple path(manifest), path(counts)
+
+    output:
+    // If validation was successful, the output will be written with this path
+    path "*.limma_voom.csv"
+
+    script:
+    // Run the script in templates/run_limma_voom.R
+    template "run_limma_voom.R"
+
+}
+
 workflow test {
     take:
     // Table of gene counts paired with the manifest, 
