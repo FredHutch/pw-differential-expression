@@ -65,7 +65,7 @@ res_df = topTable(
     fit,
     coef=test_col,
     number=nrow(counts),
-    adjust.method="BH"
+    adjust.method="${params.fdr_method}"
 )
 
 # Write out the results

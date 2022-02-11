@@ -60,6 +60,9 @@ res <- results(dds)
 # Format as a DataFrame
 res_df <- as.data.frame(res)
 
+# Add the FDR-adjusted q-value
+res_df\$qvalue <- p.adjust(res_df\$pvalue, method="${params.fdr_method}")
+
 # Write out the results
 write.csv(
     res_df, 

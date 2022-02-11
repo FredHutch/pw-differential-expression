@@ -61,7 +61,7 @@ qlf = glmQLFTest(fit, coef=2)
 res_df = qlf\$table
 
 # Add the FDR-adjusted q-value
-res_df\$QValue <- p.adjust(res_df\$PValue, method="BH")
+res_df\$QValue <- p.adjust(res_df\$PValue, method="${params.fdr_method}")
 
 # Write out the results
 write.csv(
