@@ -30,15 +30,29 @@ for fp in os.listdir("."):
 
         logging.info(f"Reading in {method} results for {variable} from {fp}")
 
-        dat.append(pd.read_csv(fp).assign(
-            method=method,
-            variable=variable
-        ))
+        dat.append(
+            pd.read_csv(
+                fp
+            ).rename(
+                columns={
+                    "PValue": "pvalue",
+                    "P.Value": "pvalue",
+                    "log2FoldChange": "logFC",
+                    "QValue": "qvalue",
+                    "adj.P.Val": "qvalue"
+                }
+            ).assign(
+                method=method,
+                variable=variable
+            )
+        )
 
 # Concatenate all results
 df = pd.concat(dat)
 
 # Fix the empty header for the row names
+# also make sure that all outputs have the same names for
+# `pvalue` and `logFC`
 df = df.rename(
     columns={
         "Unnamed: 0": "gene_id"
