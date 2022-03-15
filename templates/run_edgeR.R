@@ -55,7 +55,7 @@ disp = estimateDisp(dat, design)
 
 # Perform quasi-likelihood F-tests
 fit = glmQLFit(disp, design)
-qlf = glmQLFTest(fit, coef=2)
+qlf = glmQLFTest(fit)
 
 # Get the output table
 res_df = qlf\$table
