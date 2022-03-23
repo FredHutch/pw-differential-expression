@@ -35,21 +35,21 @@ def get_params():
 
     # Required: Column used for comparisons
     comp_col = "${params.comp_col}"
-    assert comp_col != 'false', "Must specify parameter: comp_col"
+    assert comp_col != '', "Must specify parameter: comp_col"
     assert ' ' not in comp_col, "Comparison column name cannot contain spaces"
     
     # Reference value used for categorical comparisons
     comp_ref = "${params.comp_ref}"
 
     # If no value was provided, use a null value
-    if comp_ref == "false":
+    if comp_ref == "":
         comp_ref = None
 
     # List of columns to use for batch correction
     group_cols = "${params.group_cols}".split(",")
 
     # If no value was specified, replace with an empty list
-    if len(group_cols) == 1 and group_cols[0] == "false":
+    if len(group_cols) == 1 and group_cols[0] == "":
         group_cols = []
 
     # Make sure that grouping columns do not contain spaces
@@ -60,7 +60,7 @@ def get_params():
     filter = "${params.filter}"
 
     # If no value was provided, use a null value
-    if filter == "false":
+    if filter == "":
         filter = None
 
     return comp_col, comp_ref, group_cols, filter

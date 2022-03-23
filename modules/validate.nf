@@ -49,7 +49,7 @@ workflow validate {
         }
 
         // Make sure that a comparison column was defined
-        if ( params.comp_col == false ) {
+        if ( params.comp_col == "" ) {
             throw new Exception("""Must specify parameter: comp_col""")
         }
 
