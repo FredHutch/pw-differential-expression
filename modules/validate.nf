@@ -62,13 +62,13 @@ workflow validate {
         // If a filtering expression was specified, apply that filtering
         // before performing any additional transformations.
         manifest(
-            Channel.fromPath(params.manifest)
+            Channel.fromPath("${params.manifest}")
         )
 
         // Validate the counts file
         counts(
             Channel
-                .fromPath(params.counts)
+                .fromPath("${params.counts}")
                 .combine(
                     manifest.out.flatten()
                 )            
