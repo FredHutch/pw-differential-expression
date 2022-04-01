@@ -83,9 +83,12 @@ def validate_counts(
     # in the columns from the counts
     missing_specimens = manifest_rows - counts_cols
 
-    # Raise an error if there are any missing
-    msg = f"Missing specimens from counts columns: {', '.join(list(missing_specimens))}"
-    assert len(missing_specimens) == 0, msg
+    # Tell the user if there are any missing
+    if len(missing_specimens) > 0:
+        print(f"Missing specimens from counts columns: {', '.join(list(missing_specimens))}")
+
+        # Drop those specimens from the manifest
+        manifest = manifest.drop(index=list(missing_specimens))
 
     # Reorder the columns of the counts to match the rows of the manifest
     counts = counts.reindex(
