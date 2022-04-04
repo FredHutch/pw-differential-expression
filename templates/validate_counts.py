@@ -90,6 +90,9 @@ def validate_counts(
         # Drop those specimens from the manifest
         manifest = manifest.drop(index=list(missing_specimens))
 
+        # Raise an error if there are no specimens remaining
+        assert manifest.shape[0] > 0, "ERROR: no overlap found between manifest and counts"
+
     # Reorder the columns of the counts to match the rows of the manifest
     counts = counts.reindex(
         columns=manifest.index.values
