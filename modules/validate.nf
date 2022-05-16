@@ -4,6 +4,7 @@ process manifest {
 
     container "${params.container__pandas}"
     label "io_limited"
+    publishDir "${params.output_folder}/manifest/", mode: "copy", overwrite: true
     
     input:
     // Input file will be placed in the working directory with this name
