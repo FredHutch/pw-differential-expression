@@ -193,6 +193,7 @@ def validate_manifest(manifest="manifest.csv"):
                     [comp_val, comp_ref]
                 )
             ]
+            logger.info(f"Using {comp_df.shape[0]:,} / {df.shape[0]:,} samples for this comparison")
 
             # Remove the `comp_col` column, and replace it with
             # a column named for `comp_val`, containing either 0 or 1
