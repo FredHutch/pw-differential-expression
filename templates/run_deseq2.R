@@ -34,7 +34,7 @@ test_col = manifest_fields[1]
 group_cols = strsplit("${params.group_cols}", split = ",")[[1]]
 
 # If >=1 grouping columns were provided
-if ( group_cols[1] != "" ){
+if ( length(group_cols) > 0 ){
 
     # Make formula which uses the test column in the last position
     design = formula(paste("~", paste(group_cols, collapse = " + "), "+", test_col))
