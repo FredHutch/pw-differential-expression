@@ -192,7 +192,7 @@ def validate_manifest(manifest="manifest.csv"):
             logger.info(f"Using {comp_df.shape[0]:,} / {df.shape[0]:,} samples for this comparison")
 
             # Using a value with spaces or periods will introduce errors later on when R tries to read it in
-            comp_val_sanitized = comp_val.replace(" ", "_").replace(".", "_")
+            comp_val_sanitized = comp_val.replace(" ", "_").replace(".", "_").replace("-", "_")
 
             # Remove the `comp_col` column, and replace it with
             # a column named for `comp_val_sanitized`, containing either 0 or 1
