@@ -179,10 +179,6 @@ def validate_manifest(manifest="manifest.csv"):
             if comp_val == comp_ref:
                 continue
 
-            # Using a value with spaces or periods will introduce errors later on when R tries to read it in
-            comp_val = comp_val.replace(" ", "_")
-            comp_val = comp_val.replace(".", "_")
-
             logger.info(f"Formatting a table to compare {comp_val} vs. {comp_ref}")
 
             # Make a DataFrame which only contains those rows where the
@@ -195,13 +191,16 @@ def validate_manifest(manifest="manifest.csv"):
             ]
             logger.info(f"Using {comp_df.shape[0]:,} / {df.shape[0]:,} samples for this comparison")
 
+            # Using a value with spaces or periods will introduce errors later on when R tries to read it in
+            comp_val_sanitized = comp_val.replace(" ", "_").replace(".", "_")
+
             # Remove the `comp_col` column, and replace it with
-            # a column named for `comp_val`, containing either 0 or 1
+            # a column named for `comp_val_sanitized`, containing either 0 or 1
             comp_df = comp_df.drop(
                 columns=[comp_col]
             ).assign(
                 **{
-                    comp_val: comp_df[comp_col].apply(
+                    comp_val_sanitized: comp_df[comp_col].apply(
                         {
                             comp_ref: 0,
                             comp_val: 1
@@ -211,7 +210,7 @@ def validate_manifest(manifest="manifest.csv"):
             )
 
             # Write out this table as a CSV
-            fp = f"{comp_val}.categorical.manifest.csv"
+            fp = f"{comp_val_sanitized}.categorical.manifest.csv"
             logger.info(f"Writing out file to {fp}")
             comp_df.to_csv(fp)
 
