@@ -65,6 +65,17 @@ def get_params():
 
     return comp_col, comp_ref, group_cols, filter
 
+def sample_mask_initial_numeral(s):
+    """
+    Any sample names which start with numerals will have an X prepended in the counts.
+    Update the sample name to match.
+    """
+    if s.startswith(('1', '2', '3', '4', '5', '6', '7', '8', '9', '0')):
+        print(f"Sample '{s}' will be modified to X{s}")
+        return f"X{s}"
+    else:
+        return s
+
 def validate_manifest(manifest="manifest.csv"):
 
     # Set up logging
@@ -88,6 +99,12 @@ def validate_manifest(manifest="manifest.csv"):
 
     # Make sure that there are rows in the manifest
     assert df.shape[0] > 1, "Manifest does not contain enough rows"
+
+    # SAMPLE IDS
+    # Prepend 'X' to any samples which start with numerals
+    df = df.rename(
+        index=sample_mask_initial_numeral
+    )
 
     # Get the values defined by the user in the `params` scope of the workflow
     logger.info("Parsing parameters from nextflow")
