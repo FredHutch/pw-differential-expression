@@ -10,8 +10,8 @@ manifest_fp = "${manifest}"
 counts_fp = "${counts}"
 
 # Read in the manifest and counts table
-manifest = read.table(manifest_fp, header=TRUE, sep=",", row.names=1)
-counts = read.table(counts_fp, header=TRUE, sep=",", row.names=1)
+manifest = read.table(manifest_fp, header=TRUE, sep=",", row.names=1, comment.char="")
+counts = read.table(counts_fp, header=TRUE, sep=",", row.names=1, comment.char="")
 cnames = names(counts)
 
 # Make sure that all counts are integers

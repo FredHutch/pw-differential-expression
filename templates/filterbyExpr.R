@@ -7,8 +7,8 @@ library(edgeR)
 manifest_fp = "${manifest}"
 
 # Read in the manifest and counts table
-manifest = read.table(manifest_fp, header=TRUE, sep=",", row.names=1)
-counts = read.table("raw.counts.csv", header=TRUE, sep=",", row.names=1)
+manifest = read.table(manifest_fp, header=TRUE, sep=",", row.names=1, comment.char="")
+counts = read.table("raw.counts.csv", header=TRUE, sep=",", row.names=1, comment.char="")
 
 # Split up the manifest filename, which has the format
 # "{comp_column}.[continuous|categorical].manifest.csv"
