@@ -38,7 +38,10 @@ def make_anndata(
     # Make an AnnData object (scaling to CPM)
     # Transposing so that samples are on the .obs axis
     logger.info("Scaling input data")
-    adata = AnnData((scale_factor * counts / counts.sum()).T)
+    adata = AnnData(
+        (scale_factor * counts / counts.sum()).T,
+        dtype=np.float32
+    )
     sc.pp.log1p(adata)
 
     # Run UMAP ordination
@@ -58,11 +61,13 @@ def make_anndata(
         res
         .set_index("gene_id")
         .assign(
-            neg_log10_padj=lambda d: -np.log10(d['padj']),
-            significant=lambda d: d.apply(is_significant, axis=1).apply(int),
+            neg_log10_pvalue=lambda d: -np.log10(d['pvalue']),
+            top_significant=lambda d: top_significant(d),
             mean_abund=adata.to_df().mean()
         )
     )
+
+    logger.info("Top genes:" + res.query("top_significant == 1").to_csv())
 
     # Add the differential abundance analysis results
     for kw, val in res.items():
@@ -70,7 +75,7 @@ def make_anndata(
 
     # Format the volcano plot and MA plot with plotting coordinates
     adata.varm["results"] = res.reindex(
-        columns=["mean_abund", "logFC", "neg_log10_padj"]
+        columns=["mean_abund", "logFC", "neg_log10_pvalue"]
     ).apply(
         scale_values
     ).values
@@ -78,8 +83,12 @@ def make_anndata(
     return adata
 
 
-def is_significant(r: pd.Series, padj_threshold=0.05) -> bool:
-    return r['padj'] <= padj_threshold and abs(r['logFC']) >= 2
+def top_significant(df: pd.DataFrame, n=100) -> pd.Series:
+    """Identify the most highly significant genes."""
+    # Calculate a score for each gene using the log10(pvalue) and log(fold_change)
+    score = df["pvalue"].apply(np.log10).abs() * df["logFC"]
+    threshold = score.sort_values().tail(n).min()
+    return (score >= threshold).apply(int)
 
 
 def scale_values(r: pd.Series):
@@ -261,11 +270,12 @@ def save_anndata(adata: AnnData, category: str):
 
     logger.info("Optimizing AnnData object for serialization")
     gene_cols = [
+        "pvalue",
         "padj",
         "logFC",
-        "neg_log10_padj",
+        "neg_log10_pvalue",
         "mean_abund",
-        "significant"
+        "top_significant"
     ]
 
     samples_adata = optimize_adata(
