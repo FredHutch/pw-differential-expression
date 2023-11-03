@@ -6,8 +6,11 @@ import os
 
 
 def get_sep(fp):
-    """Return the separator value which should be used, based on the file extension."""
-    
+    """
+    Return the separator value which should be used,
+    based on the file extension.
+    """
+
     # Remove the '.gz', if any
     if fp.endswith('.gz'):
         fp = fp[:-3]
@@ -37,7 +40,7 @@ def get_params():
     comp_col = "${params.comp_col}"
     assert comp_col != '', "Must specify parameter: comp_col"
     assert ' ' not in comp_col, "Comparison column name cannot contain spaces"
-    
+
     # Reference value used for categorical comparisons
     comp_ref = "${params.comp_ref}"
 
@@ -54,7 +57,8 @@ def get_params():
 
     # Make sure that grouping columns do not contain spaces
     for cname in group_cols:
-        assert ' ' not in cname, f"Grouping column name cannot contain spaces ({cname})"
+        msg = f"Grouping column name cannot contain spaces ({cname})"
+        assert ' ' not in cname, msg
 
     # Optional filtering expression to be applied
     filter = "${params.filter}"
@@ -65,9 +69,11 @@ def get_params():
 
     return comp_col, comp_ref, group_cols, filter
 
+
 def sample_mask_initial_numeral(s):
     """
-    Any sample names which start with numerals will have an X prepended in the counts.
+    Any sample names which start with numerals
+    will have an X prepended in the counts.
     Update the sample name to match.
     """
     if s.startswith(('1', '2', '3', '4', '5', '6', '7', '8', '9', '0')):
@@ -75,6 +81,7 @@ def sample_mask_initial_numeral(s):
         return f"X{s}"
     else:
         return s
+
 
 def validate_manifest(manifest="manifest.csv"):
 
@@ -141,7 +148,7 @@ def validate_manifest(manifest="manifest.csv"):
         )
 
         # Make sure that multiple rows have grouping values
-        msg = f"Not enough specimens have valid grouping information"
+        msg = "Not enough specimens have valid grouping information"
         assert df.shape[0] > 1, msg
 
     # COMPARISON COLUMN
@@ -161,7 +168,8 @@ def validate_manifest(manifest="manifest.csv"):
 
         logger.info("Values appear to all be numeric")
 
-        # Using a value with spaces or periods will introduce errors later on when R tries to read it in
+        # Using a value with spaces or periods will introduce
+        # errors later on when R tries to read it in
         new_comp_col = comp_col.replace(" ", "_").replace(".", "_")
         df = df.rename(columns=dict({comp_col: new_comp_col}))
         comp_col = new_comp_col
@@ -170,12 +178,16 @@ def validate_manifest(manifest="manifest.csv"):
         msg = f"Column ({comp_col} is numeric - `comp_ref` not allowed"
         assert comp_ref is None, msg
 
-        # Write out a table which indicates the comparison column in the file name
+        # Write out a table which indicates the
+        # comparison column in the file name
         fp = f"{comp_col}.continuous.manifest.csv"
         logger.info(f"Writing out file to {fp}")
         df.to_csv(fp)
 
-    except:
+    except Exception as e:
+
+        # Log the exception
+        logger.info(str(e))
 
         # If the column is not all numeric
         logger.info("Values are not all numeric")
@@ -185,9 +197,9 @@ def validate_manifest(manifest="manifest.csv"):
         assert comp_ref is not None, msg
 
         # The value of `comp_ref` must be present in the `comp_col` column
-        comp_ref_count = (df[comp_col] == comp_ref).sum()
-        msg = f"Found value ({comp_ref}) in column ({comp_col}) {comp_ref_count} times"
-        assert comp_ref_count > 0, msg
+        ref_n = (df[comp_col] == comp_ref).sum()
+        msg = f"Found value ({comp_ref}) in column ({comp_col}) {ref_n} times"
+        assert ref_n > 0, msg
 
         # Iterate over each of the unique values in the `comp_col` column
         for comp_val in df[comp_col].unique():
@@ -196,7 +208,8 @@ def validate_manifest(manifest="manifest.csv"):
             if comp_val == comp_ref:
                 continue
 
-            logger.info(f"Formatting a table to compare {comp_val} vs. {comp_ref}")
+            msg = f"Formatting a table to compare {comp_val} vs. {comp_ref}"
+            logger.info(msg)
 
             # Make a DataFrame which only contains those rows where the
             # value in `comp_col` is either this value, or the `comp_ref` value

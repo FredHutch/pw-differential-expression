@@ -72,7 +72,7 @@ workflow validate {
                 .fromPath("${params.counts}")
                 .combine(
                     manifest.out.flatten()
-                )            
+                )
         )
 
     emit:

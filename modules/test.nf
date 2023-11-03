@@ -111,5 +111,6 @@ workflow test {
     }
 
     emit:
-    csv
+    results = csv
+    filtered = filter.out
 }
