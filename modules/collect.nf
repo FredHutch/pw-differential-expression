@@ -28,13 +28,31 @@ process anndata {
     tuple path("manifest.csv"), path("counts.csv")
 
     output:
-    path "*.h5ad"
-    path "*.zarr", hidden: true
-    path "*.vt.json"
+    path "*.h5ad", emit: h5ad
+    path "*.zarr", hidden: true, emit: zarr
+    path "*.vt.json", emit: vt_json
 
     """#!/bin/bash
 set -e
 make_anndata.py
+    """
+
+}
+
+process manifest {
+    publishDir "${params.web_folder}", mode: "copy", overwrite: true, enabled: "${params.web_folder}" != "false"
+    container "${params.container__pandas}"
+    label "io_limited"
+
+    input:
+    path "*"
+
+    output:
+    path "chart.manifest.json"
+
+    """#!/bin/bash
+set -e
+chart_manifest.py
     """
 
 }
@@ -53,5 +71,8 @@ workflow collect {
 
     // Format as AnnData
     anndata(all.out.toSortedList(), filtered_ch)
+
+    // Format the chart.manifest.json
+    manifest(anndata.out.vt_json.toSortedList())
 
 }

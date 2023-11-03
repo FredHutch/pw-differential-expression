@@ -99,7 +99,7 @@ def write_vitessce(
     logger.info("Setting up Vitessce config")
     vc = VitessceConfig(
         schema_version=schema_version,
-        name=category,
+        name=f"Differential Expression by {category}",
         description=desc
     )
 
