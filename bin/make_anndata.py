@@ -56,29 +56,31 @@ def make_anndata(
     # Add the sample annotation
     adata.obs[category] = manifest[category]
 
+    # Find the lowest non-zero pvalue
+    pval_floor = res['padj'][res['padj'] > 0].min()
+
     # Format the results as an indexed table
     res = (
         res
         .set_index("gene_id")
         .assign(
-            neg_log10_pvalue=lambda d: -np.log10(d['pvalue']),
+            neg_log10_padj=lambda d: -d['padj'].clip(lower=pval_floor).apply(np.log10),
             top_significant=lambda d: top_significant(d),
             mean_abund=adata.to_df().mean()
         )
     )
-
-    logger.info("Top genes:" + res.query("top_significant == 1").to_csv())
 
     # Add the differential abundance analysis results
     for kw, val in res.items():
         adata.var[kw] = val
 
     # Format the volcano plot and MA plot with plotting coordinates
-    adata.varm["results"] = res.reindex(
-        columns=["mean_abund", "logFC", "neg_log10_pvalue"]
-    ).apply(
-        scale_values
-    ).values
+    adata.varm["results"] = (
+        res
+        .reindex(columns=["mean_abund", "logFC", "neg_log10_padj"])
+        .apply(scale_values)
+        .values
+    )
 
     return adata
 
@@ -86,7 +88,7 @@ def make_anndata(
 def top_significant(df: pd.DataFrame, n=100) -> pd.Series:
     """Identify the most highly significant genes."""
     # Calculate a score for each gene using the log10(pvalue) and log(fold_change)
-    score = df["pvalue"].apply(np.log10).abs() * df["logFC"]
+    score = df["pvalue"].apply(np.log10).abs() * df["logFC"].abs()
     threshold = score.sort_values().tail(n).min()
     return (score >= threshold).apply(int)
 
@@ -124,7 +126,7 @@ def write_vitessce(
                 obs_set_paths=[f"obs/{category}"],
                 obs_set_names=[category],
                 obs_feature_matrix_path="X",
-                feature_filter_path="var/significant",
+                feature_filter_path="var/top_significant",
                 coordination_values=dict(
                     obsType="Sample",
                     featureType="Gene"
@@ -142,7 +144,7 @@ def write_vitessce(
                 obs_embedding_paths=["obsm/results", "obsm/results"],
                 obs_embedding_names=["Volcano", "MA Plot"],
                 obs_embedding_dims=[[1, 2], [0, 1]],
-                obs_set_paths=["obs/significant"],
+                obs_set_paths=["obs/top_significant"],
                 obs_set_names=["Differentially Expressed"],
                 coordination_values=dict(
                     obsType="Gene",
@@ -273,7 +275,7 @@ def save_anndata(adata: AnnData, category: str):
         "pvalue",
         "padj",
         "logFC",
-        "neg_log10_pvalue",
+        "neg_log10_padj",
         "mean_abund",
         "top_significant"
     ]
