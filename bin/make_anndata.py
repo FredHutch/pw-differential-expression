@@ -80,7 +80,7 @@ def make_anndata(
     # Format the volcano plot and MA plot with plotting coordinates
     adata.varm["results"] = (
         res
-        .reindex(columns=["mean_abund", "logFC", "neg_log10_padj"])
+        .reindex(columns=["mean_abund", "logFC", "neg_log10_qvalue"])
         .apply(scale_values)
         .values
     )
