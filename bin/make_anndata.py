@@ -67,7 +67,7 @@ def make_anndata(
         res
         .set_index("gene_id")
         .assign(
-            neg_log10_qvalue=lambda d: -d['qvalue'].apply(np.log10),
+            neg_log10_pvalue=lambda d: -d['qvalue'].apply(np.log10),
             top_significant=lambda d: top_significant(d),
             mean_abund=adata.to_df().mean()
         )
@@ -80,7 +80,7 @@ def make_anndata(
     # Format the volcano plot and MA plot with plotting coordinates
     adata.varm["results"] = (
         res
-        .reindex(columns=["mean_abund", "logFC", "neg_log10_qvalue"])
+        .reindex(columns=["mean_abund", "logFC", "neg_log10_pvalue"])
         .apply(scale_values)
         .values
     )
@@ -97,7 +97,7 @@ def clip_zeros(r: pd.Series) -> pd.Series:
 def top_significant(df: pd.DataFrame, n=100) -> pd.Series:
     """Identify the most highly significant genes."""
     # Calculate a score for each gene using the log10(qvalue) and log(fold_change)
-    score = df["neg_log10_qvalue"].abs() * df["logFC"].abs()
+    score = df["neg_log10_pvalue"].abs() * df["logFC"].abs()
     threshold = score.sort_values().tail(n).min()
     return (score >= threshold).apply(int)
 
@@ -284,7 +284,7 @@ def save_anndata(adata: AnnData, category: str):
         "pvalue",
         "qvalue",
         "logFC",
-        "neg_log10_qvalue",
+        "neg_log10_pvalue",
         "mean_abund",
         "top_significant"
     ]
