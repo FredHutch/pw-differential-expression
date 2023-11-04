@@ -56,15 +56,18 @@ def make_anndata(
     # Add the sample annotation
     adata.obs[category] = manifest[category]
 
-    # Find the lowest non-zero pvalue
-    pval_floor = res['padj'][res['padj'] > 0].min()
+    # Set a floor on the pvalues to remove zero values
+    res = res.assign(
+        pvalue=clip_zeros(res['pvalue']),
+        qvalue=clip_zeros(res['qvalue']),
+    )
 
     # Format the results as an indexed table
     res = (
         res
         .set_index("gene_id")
         .assign(
-            neg_log10_padj=lambda d: -d['padj'].clip(lower=pval_floor).apply(np.log10),
+            neg_log10_qvalue=lambda d: -d['qvalue'].apply(np.log10),
             top_significant=lambda d: top_significant(d),
             mean_abund=adata.to_df().mean()
         )
@@ -85,10 +88,16 @@ def make_anndata(
     return adata
 
 
+def clip_zeros(r: pd.Series) -> pd.Series:
+    # Find the lowest non-zero pvalue
+    threshold = r.loc[r > 0].dropna().min()
+    return r.clip(lower=threshold).fillna(1)
+
+
 def top_significant(df: pd.DataFrame, n=100) -> pd.Series:
     """Identify the most highly significant genes."""
-    # Calculate a score for each gene using the log10(pvalue) and log(fold_change)
-    score = df["pvalue"].apply(np.log10).abs() * df["logFC"].abs()
+    # Calculate a score for each gene using the log10(qvalue) and log(fold_change)
+    score = df["neg_log10_qvalue"].abs() * df["logFC"].abs()
     threshold = score.sort_values().tail(n).min()
     return (score >= threshold).apply(int)
 
@@ -273,9 +282,9 @@ def save_anndata(adata: AnnData, category: str):
     logger.info("Optimizing AnnData object for serialization")
     gene_cols = [
         "pvalue",
-        "padj",
+        "qvalue",
         "logFC",
-        "neg_log10_padj",
+        "neg_log10_qvalue",
         "mean_abund",
         "top_significant"
     ]
