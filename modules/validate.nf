@@ -31,7 +31,7 @@ process counts {
 
     output:
     // If validation was successful, the output will be written with this path
-    tuple path("${manifest_table.name}"), path("counts.csv")
+    tuple path("validated.${manifest_table.name}"), path("counts.csv")
 
     script:
     // Run the script in templates/validate_counts.py

@@ -22,13 +22,13 @@ counts = data.frame(
 names(counts) = cnames
 
 # Split up the manifest filename, which has the format
-# "{comp_column}.[continuous|categorical].manifest.csv"
+# "validated.{comp_column}.[continuous|categorical].manifest.csv"
 manifest_fields = strsplit(manifest_fp, split = "[.]")[[1]]
-stopifnot(length(manifest_fields) == 4)
+stopifnot(length(manifest_fields) == 5)
 
 # The first field in the manifest filename is the column indicating the
 # metadata field to use in the formula
-test_col = manifest_fields[1]
+test_col = manifest_fields[2]
 
 # Any additional grouping columns will be provided with the Nextflow parameter `group_cols`
 group_cols = strsplit("${params.group_cols}", split = ",")[[1]]

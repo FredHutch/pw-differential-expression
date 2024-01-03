@@ -11,14 +11,14 @@ manifest = read.table(manifest_fp, header=TRUE, sep=",", row.names=1, comment.ch
 counts = read.table("raw.counts.csv", header=TRUE, sep=",", row.names=1, comment.char="")
 
 # Split up the manifest filename, which has the format
-# "{comp_column}.[continuous|categorical].manifest.csv"
+# "validated.{comp_column}.[continuous|categorical].manifest.csv"
 manifest_fields = strsplit(manifest_fp, split = "[.]")[[1]]
-stopifnot(length(manifest_fields) == 4)
+stopifnot(length(manifest_fields) == 5)
 
 starting_counts = nrow(counts)
 
 # If the comparison is continuous
-if (manifest_fields[2] == "continuous"){
+if (manifest_fields[3] == "continuous"){
 
     # Treat the group of samples as belonging to a single group
     group = rep(c('dummy_group'), times=ncol(counts))
@@ -41,7 +41,7 @@ if (manifest_fields[2] == "continuous"){
     # Get a vector showing which genes to keep
     keep = filterByExpr(
         counts,
-        group=manifest[[manifest_fields[1]]],
+        group=manifest[[manifest_fields[2]]],
         min.count=${params.min_count},
         min.total.count=${params.min_total_count},
         large.n=${params.large_n},
