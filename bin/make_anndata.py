@@ -299,8 +299,8 @@ def save_anndata(adata: AnnData, category: str):
     samples_adata.write_h5ad(f"{category}.samples.h5ad", compression="gzip")
     samples_adata.write_zarr(f"{category}.samples.zarr")
     # Write out the PCA coordinates and UMAP coordinates
-    write_coordinates(samples_adata, "pca", "PC")
-    write_coordinates(samples_adata, "umap", "UMAP")
+    write_coordinates(samples_adata, "pca", "PC", n=3)
+    write_coordinates(samples_adata, "umap", "UMAP", n=2)
 
     genes_adata: AnnData = optimize_adata(
         adata.T,
@@ -313,14 +313,14 @@ def save_anndata(adata: AnnData, category: str):
     genes_adata.write_zarr(f"{category}.genes.zarr")
 
 
-def write_coordinates(adata: AnnData, kw: str, label: str):
+def write_coordinates(adata: AnnData, kw: str, label: str, n: int):
     (
         pd.DataFrame(
-            adata.obsm[f"X_{kw}"],
+            adata.obsm[f"X_{kw}"][:, :n],
             index=adata.obs_names,
             columns=[
                 f"{label}{i + 1}"
-                for i in range(adata.obsm[f"X_{kw}"].shape[1])
+                for i in range(n)
             ],
         )
         .rename_axis("sample")
