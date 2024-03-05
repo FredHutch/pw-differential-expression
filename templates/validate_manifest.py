@@ -83,7 +83,7 @@ def sample_mask_initial_numeral(s):
         return s
 
 
-def validate_manifest(manifest="manifest.csv"):
+def validate_manifest(manifest="input_manifest.csv"):
 
     # Set up logging
     logFormatter = logging.Formatter(
@@ -155,6 +155,9 @@ def validate_manifest(manifest="manifest.csv"):
     # Make sure that the table contains the grouping column
     msg = f"Manifest does not contain column: {comp_col}"
     assert comp_col in df.columns.values, msg
+
+    # Write out the full set of values
+    df.to_csv("manifest.csv")
 
     # If the column is all numeric
     logger.info(f"Checking for all numeric values in {comp_col}")

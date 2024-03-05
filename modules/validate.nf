@@ -8,11 +8,12 @@ process manifest {
     
     input:
     // Input file will be placed in the working directory with this name
-    path "manifest.csv"
+    path "input_manifest.csv"
 
     output:
     // The output file(s) will contain the comparison column name in the file name
-    path "*.manifest.csv"
+    path "*.manifest.csv", emit: for_de
+    path "manifest.csv", emit: full
 
     script:
     // Run the script in templates/validate_manifest.py
@@ -71,7 +72,7 @@ workflow validate {
             Channel
                 .fromPath("${params.counts}")
                 .combine(
-                    manifest.out.flatten()
+                    manifest.out.for_de.flatten()
                 )
         )
 

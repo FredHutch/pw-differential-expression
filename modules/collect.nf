@@ -20,6 +20,7 @@ process anndata {
     container "${params.container__pandas}"
     label "io_limited"
     publishDir "${params.output_folder}", mode: "copy", overwrite: true, pattern: "*.h5ad"
+    publishDir "${params.output_folder}", mode: "copy", overwrite: true, pattern: "*.csv"
     publishDir "${params.web_folder}", mode: "copy", overwrite: true, pattern: "*.zarr", enabled: "${params.web_folder}" != "false"
     publishDir "${params.web_folder}", mode: "copy", overwrite: true, pattern: "*.vt.json", enabled: "${params.web_folder}" != "false"
 
@@ -31,6 +32,7 @@ process anndata {
     path "*.h5ad", emit: h5ad
     path "*.zarr", hidden: true, emit: zarr
     path "*.vt.json", emit: vt_json
+    path "*.csv", emit: csv
 
     """#!/bin/bash
 set -e

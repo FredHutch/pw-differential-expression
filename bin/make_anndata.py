@@ -289,7 +289,7 @@ def save_anndata(adata: AnnData, category: str):
         "top_significant"
     ]
 
-    samples_adata = optimize_adata(
+    samples_adata: AnnData = optimize_adata(
         adata,
         obs_cols=[category],
         obsm_keys=["X_umap", "X_pca"],
@@ -298,8 +298,11 @@ def save_anndata(adata: AnnData, category: str):
     logger.info("Writing samples to h5ad and zarr")
     samples_adata.write_h5ad(f"{category}.samples.h5ad", compression="gzip")
     samples_adata.write_zarr(f"{category}.samples.zarr")
+    # Write out the PCA coordinates and UMAP coordinates
+    write_coordinates(samples_adata, "pca", "PC")
+    write_coordinates(samples_adata, "umap", "UMAP")
 
-    genes_adata = optimize_adata(
+    genes_adata: AnnData = optimize_adata(
         adata.T,
         obs_cols=gene_cols,
         var_cols=[category],
@@ -308,6 +311,21 @@ def save_anndata(adata: AnnData, category: str):
     logger.info("Writing genes to h5ad and zarr")
     genes_adata.write_h5ad(f"{category}.genes.h5ad", compression="gzip")
     genes_adata.write_zarr(f"{category}.genes.zarr")
+
+
+def write_coordinates(adata: AnnData, kw: str, label: str):
+    (
+        pd.DataFrame(
+            adata.obsm[f"X_{kw}"],
+            index=adata.obs_names,
+            columns=[
+                f"{label}{i + 1}"
+                for i in range(adata.obsm[f"X_{kw}"].shape[1])
+            ],
+        )
+        .rename_axis("sample")
+        .to_csv(f"samples.{kw}.csv")
+    )
 
 
 if __name__ == "__main__":
