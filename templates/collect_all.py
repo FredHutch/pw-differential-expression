@@ -62,6 +62,9 @@ for fp in os.listdir("."):
 # Concatenate all results
 df = pd.concat(dat)
 
+# Remove any rows with missing values
+df = df.dropna()
+
 # Fix the empty header for the row names
 # also make sure that all outputs have the same names for
 # `pvalue` and `logFC`
