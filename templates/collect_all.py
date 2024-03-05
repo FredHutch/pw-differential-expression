@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import numpy as np
 import os
 import pandas as pd
 import logging
@@ -18,6 +19,16 @@ logger.addHandler(consoleHandler)
 
 # Keep a list of all of the data that we've found
 dat = []
+
+
+def neg_log10_pvalue(df: pd.DataFrame) -> pd.Series:
+    """
+    Calculate the negative log10 of the pvalue
+    """
+    # Find the smallest non-negative p-value
+    min_p = df['pvalue'][df['pvalue'] > 0].min()
+    return -df['pvalue'].clip(lower=min_p).apply(np.log10)
+
 
 for fp in os.listdir("."):
 
@@ -43,7 +54,8 @@ for fp in os.listdir("."):
                 }
             ).assign(
                 method=method,
-                variable=variable
+                variable=variable,
+                neg_log10_pvalue=neg_log10_pvalue
             )
         )
 
