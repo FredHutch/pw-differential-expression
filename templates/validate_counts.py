@@ -149,6 +149,11 @@ def correct_cname(cname: str, cnames: List[str]) -> str:
             logger.info(f"Renaming {cname} -> {option}")
             return option
 
+        # If there is a match with X prepended, use it
+        if option == 'X' + replace_nonalphanum(cname):
+            logger.info(f"Renaming {cname} -> {option}")
+            return option
+
     # Fall back to the original name
     return cname
 
