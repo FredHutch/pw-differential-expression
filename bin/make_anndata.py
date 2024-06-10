@@ -96,7 +96,8 @@ def clip_zeros(r: pd.Series) -> pd.Series:
 
 def top_significant(df: pd.DataFrame, n=100) -> pd.Series:
     """Identify the most highly significant genes."""
-    # Calculate a score for each gene using the log10(qvalue) and log(fold_change)
+    # Calculate a score for each gene using
+    # the log10(qvalue) and log(fold_change)
     score = df["neg_log10_pvalue"].abs() * df["logFC"].abs()
     threshold = score.sort_values().tail(n).min()
     return (score >= threshold).apply(int)
@@ -338,6 +339,11 @@ if __name__ == "__main__":
 
     # Process each of the DA analyses
     for category, res in DE_results.groupby("variable"):
+
+        if category not in manifest.columns:
+            # Skip this category if it is not in the manifest
+            continue
+
         logger.info(f"Processing results for '{category}'")
 
         # Make the AnnData object
