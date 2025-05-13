@@ -204,6 +204,9 @@ def validate_manifest(manifest="input_manifest.csv"):
         msg = f"Found value ({comp_ref}) in column ({comp_col}) {ref_n} times"
         assert ref_n > 0, msg
 
+        # Make sure there are no extra spaces in the comp_col column
+        df[comp_col] = df[comp_col].str.strip()
+
         # Iterate over each of the unique values in the `comp_col` column
         for comp_val in df[comp_col].unique():
 
