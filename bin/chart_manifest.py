@@ -15,5 +15,5 @@ for fp in os.listdir("."):
             desc=content.get("description", "")
         ))
 
-with open("chart.manifest.json", "w") as handle:
+with open("chart.manifest.pipeline.json", "w") as handle:
     json.dump(chart_manifest, handle, indent=4)
